@@ -3,6 +3,7 @@ export interface Todo {
     title: string;
     description: string | null;
     completed: boolean;
+    photoUrl: string | null;
     createdAt: Date;
     updatedAt: Date;
     userId: number;

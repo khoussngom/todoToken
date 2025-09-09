@@ -1,6 +1,7 @@
 import { TodoService } from '../services/todo.service';
 import { ErrorMessages } from '../enums/errorEnum.js';
 import { createTodoSchema, updateTodoSchema, todoParamsSchema, completedFilterSchema } from '../schemaValidator/todo.validator';
+import jwt from 'jsonwebtoken';
 export class TodoController {
     todoService;
     constructor() {
@@ -70,8 +71,15 @@ export class TodoController {
     getAllTodos = async (req, res) => {
         try {
             const validatedQuery = completedFilterSchema.parse(req.query);
-            const { completed } = validatedQuery;
-            const result = await this.todoService.getAllTodos({ completed });
+            const { completed, userId } = validatedQuery;
+            const filterOptions = {};
+            if (completed !== undefined) {
+                filterOptions.completed = completed;
+            }
+            if (userId !== undefined) {
+                filterOptions.userId = userId;
+            }
+            const result = await this.todoService.getAllTodos(filterOptions);
             if (result.success) {
                 res.status(200).json(result);
             }
@@ -99,6 +107,10 @@ export class TodoController {
         try {
             const paramsValidation = todoParamsSchema.safeParse(req.params);
             const bodyValidation = updateTodoSchema.safeParse(req.body);
+            const authorise = req.headers.authorization;
+            const token = authorise?.split(' ')[1];
+            const verifier = jwt.verify(token, 'Marakhib');
+            const idUser = verifier.userId;
             if (!paramsValidation.success) {
                 res.status(400).json({
                     success: false,
@@ -115,7 +127,7 @@ export class TodoController {
                 });
                 return;
             }
-            const result = await this.todoService.updateTodo(paramsValidation.data.id, bodyValidation.data);
+            const result = await this.todoService.updateTodo(paramsValidation.data.id, idUser, bodyValidation.data);
             if (result.success) {
                 res.status(200).json(result);
             }
@@ -134,6 +146,10 @@ export class TodoController {
     deleteTodo = async (req, res) => {
         try {
             const validationResult = todoParamsSchema.safeParse(req.params);
+            const authorise = req.headers.authorization;
+            const token = authorise?.split(' ')[1];
+            const verifier = jwt.verify(token, 'Marakhib');
+            const idUser = verifier.userId;
             if (!validationResult.success) {
                 res.status(400).json({
                     success: false,
@@ -142,7 +158,7 @@ export class TodoController {
                 });
                 return;
             }
-            const result = await this.todoService.deleteTodo(validationResult.data.id);
+            const result = await this.todoService.deleteTodo(validationResult.data.id, idUser);
             if (result.success) {
                 res.status(200).json(result);
             }

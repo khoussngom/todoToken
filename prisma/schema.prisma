@@ -19,10 +19,12 @@ model Todo {
   title       String   @db.VarChar(255)
   description String?  @db.Text
   completed   Boolean  @default(false)
+  photoUrl    String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      Int      @db.Int
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissions TodoPermission[]
 
   @@map("todos")
 }
@@ -34,6 +36,22 @@ model User {
   name  String? @db.VarChar(255)
   role  String @default("USER") @db.VarChar(50)
   todos Todo[]
+  todoPermissions TodoPermission[]
 
   @@map("users")
+}
+
+model TodoPermission {
+  id         Int      @id @default(autoincrement())
+  todoId     Int
+  userId     Int
+  canEdit    Boolean  @default(false)
+  canDelete  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  
+  todo       Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([todoId, userId])
+  @@map("todo_permissions")
 }

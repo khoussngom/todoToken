@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { TodoController } from '../controller/todo.controller';
+import { AuthMiddleware } from '../middleware.ts/auth';
+import { AuthService } from '../services/auth.service';
+const { authenticate, writeAccess } = new AuthMiddleware(new AuthService());
 const router = Router();
 const todoController = new TodoController();
-router.post('/todo', todoController.createTodo);
 router.get('/todo', todoController.getAllTodos);
 router.get('/todo/:id', todoController.getTodoById);
-router.put('/todo/:id', todoController.updateTodo);
-router.delete('/todo/:id', todoController.deleteTodo);
+router.post('/todo', authenticate, writeAccess, todoController.createTodo);
+router.put('/todo/:id', authenticate, writeAccess, todoController.updateTodo);
+router.delete('/todo/:id', authenticate, writeAccess, todoController.deleteTodo);
 export default router;

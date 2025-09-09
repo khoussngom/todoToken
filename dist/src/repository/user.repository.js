@@ -1,7 +1,8 @@
+import { PrismaClient } from '../generated/prisma';
 export class UserRepository {
     prisma;
-    constructor(prisma) {
-        this.prisma = prisma;
+    constructor() {
+        this.prisma = new PrismaClient();
     }
     async create(data) {
         return this.prisma.user.create({ data });
@@ -24,5 +25,8 @@ export class UserRepository {
         return this.prisma.user.delete({
             where: { id }
         });
+    }
+    async findByEmail(email) {
+        return this.prisma.user.findUnique({ where: { email } });
     }
 }

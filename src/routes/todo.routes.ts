@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { TodoController } from '../controller/todo.controller';
-import { AuthMiddleware } from '../middleware.ts/auth';
-import { AuthService } from '../services/auth.service';
+import { TodoController } from '../controller/todo.controller.js';
+import { AuthMiddleware } from '../middleware.ts/auth.js';
+import { AuthService } from '../services/auth.service.js';
 
 const { authenticate, writeAccess } = new AuthMiddleware(new AuthService());
 

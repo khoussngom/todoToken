@@ -1,4 +1,5 @@
 import { TodoRepository } from '../repository/todo.repository.js';
+import { TodoPermissionRepository } from '../repository/todoPermission.repository';
 import { ErrorMessages } from '../enums/errorEnum.js';
 import { SuccessMessages } from '../enums/successEnums.js';
 import type { Todo, ApiResponse } from '../interface/todo.interface';
@@ -6,26 +7,29 @@ import { Prisma } from '../generated/prisma/index.js';
 
 export class TodoService {
     private todoRepository: TodoRepository;
+    private todoPermissionRepository: TodoPermissionRepository;
 
     constructor() {
         this.todoRepository = new TodoRepository();
+        this.todoPermissionRepository = new TodoPermissionRepository();
     }
 
     async createTodo(data: Prisma.TodoCreateInput): Promise<ApiResponse<Todo>> {
         try {
-        const todo = await this.todoRepository.create(data);
+            const todo = await this.todoRepository.create(data);
 
-        return {
-            success: true,
-            data: todo,
-            message: SuccessMessages.TODO_CREATED
-        };
-        } catch (error) {
-        console.error(ErrorMessages.Error_Recuperation, error);
-        return {
-            success: false,
-            error: ErrorMessages.TODO_CREATION_FAILED
-        };
+            return {
+                success: true,
+                data: todo,
+                message: SuccessMessages.TODO_CREATED
+            };
+        } catch (error: any) {
+            console.error('Erreur lors de la création du todo:', error);
+            
+            return {
+                success: false,
+                error: ErrorMessages.TODO_CREATION_FAILED
+            };
         }
     }
 
@@ -86,36 +90,39 @@ export class TodoService {
         }
     }
 
-    async updateTodo(id: number,idUser: number, data: Prisma.TodoUpdateInput): Promise<ApiResponse<Todo>> {
+    async updateTodo(id: number, idUser: number, data: Prisma.TodoUpdateInput): Promise<ApiResponse<Todo>> {
         try {
-
-        const existingTodo = await this.todoRepository.findById(id);
-        if (!existingTodo) {
-            return {
-            success: false,
-            error: ErrorMessages.TODO_NOT_FOUND
-            };
-        }
-
-        if(idUser !== existingTodo.userId){
-            return {
+            const existingTodo = await this.todoRepository.findById(id);
+            if (!existingTodo) {
+                return {
                 success: false,
-                error: "Vous n'avez pas la permission de modifier ce todo"
+                error: ErrorMessages.TODO_NOT_FOUND
+                };
+            }
+
+            const isOwner = idUser === existingTodo.userId;
+            const hasEditPermission = await this.todoPermissionRepository.hasPermission(id, idUser, 'canEdit');
+
+            if (!isOwner && !hasEditPermission) {
+                return {
+                    success: false,
+                    error: "Vous n'avez pas la permission de modifier ce todo"
+                };
+            }
+
+            const updateData: any = {};
+            if (data.title !== undefined) updateData.title = data.title;
+            if (data.description !== undefined) updateData.description = data.description;
+            if (data.completed !== undefined) updateData.completed = data.completed;
+            if (data.photoUrl !== undefined) updateData.photoUrl = data.photoUrl;
+
+            const updatedTodo = await this.todoRepository.update(id, updateData);
+
+            return {
+                success: true,
+                data: updatedTodo,
+                message: SuccessMessages.TODO_UPDATED
             };
-        }
-
-        const updateData: any = {};
-        if (data.title !== undefined) updateData.title = data.title;
-        if (data.description !== undefined) updateData.description = data.description;
-        if (data.completed !== undefined) updateData.completed = data.completed;
-
-        const updatedTodo = await this.todoRepository.update(id, updateData);
-
-        return {
-            success: true,
-            data: updatedTodo,
-            message: SuccessMessages.TODO_UPDATED
-        };
         } catch (error) {
         console.error(ErrorMessages.Error_Recuperation, error);
         return {
@@ -125,29 +132,33 @@ export class TodoService {
         }
     }
 
-    async deleteTodo(id: number,idUser: number): Promise<ApiResponse<Todo>> {
+    async deleteTodo(id: number, idUser: number): Promise<ApiResponse<Todo>> {
         try {
-
-        const existingTodo = await this.todoRepository.findById(id);
-        if (!existingTodo) {
-            return {
-            success: false,
-            error: ErrorMessages.TODO_NOT_FOUND
-            };
-        }
-        if (existingTodo.userId !== idUser) {
-            return {
+            const existingTodo = await this.todoRepository.findById(id);
+            if (!existingTodo) {
+                return {
                 success: false,
-                error: "Vous n'avez pas la permission de supprimer ce todo"
-            };
-        }
-        const deletedTodo = await this.todoRepository.delete(id);
+                error: ErrorMessages.TODO_NOT_FOUND
+                };
+            }
 
-        return {
-            success: true,
-            data: deletedTodo,
-            message: SuccessMessages.TODO_DELETED
-        };
+            const isOwner = idUser === existingTodo.userId;
+            const hasDeletePermission = await this.todoPermissionRepository.hasPermission(id, idUser, 'canDelete');
+
+            if (!isOwner && !hasDeletePermission) {
+                return {
+                    success: false,
+                    error: "Vous n'avez pas la permission de supprimer ce todo"
+                };
+            }
+
+            const deletedTodo = await this.todoRepository.delete(id);
+
+            return {
+                success: true,
+                data: deletedTodo,
+                message: SuccessMessages.TODO_DELETED
+            };
         } catch (error) {
         console.error(ErrorMessages.Error_Recuperation, error);
         return {

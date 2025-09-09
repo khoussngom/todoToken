@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import { Prisma } from '../generated/prisma/index';
+import { PrismaClient, Prisma } from '../generated/prisma/index.js';
 import type { Todo } from '../interface/todo.interface.js';
 
 
@@ -10,7 +9,7 @@ export class TodoRepository {
         this.prisma = new PrismaClient();
     }
 
-    async create(data: Prisma.TodoUpdateInput): Promise<Todo> {
+    async create(data: Prisma.TodoCreateInput): Promise<Todo> {
         return await this.prisma.todo.create({data});
     }
 

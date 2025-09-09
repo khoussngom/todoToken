@@ -23,6 +23,7 @@ export class TodoController {
                                         connect: { id: userId }
                                 }
                         };
+                        
                         const result = await this.todoService.createTodo(todoCreateInput);
                         
                         if (result.success) {

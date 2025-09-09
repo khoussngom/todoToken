@@ -1,11 +1,13 @@
 import { TodoRepository } from '../repository/todo.repository.js';
+import { TodoPermissionRepository } from '../repository/todoPermission.repository';
 import { ErrorMessages } from '../enums/errorEnum.js';
 import { SuccessMessages } from '../enums/successEnums.js';
-// import type { CreateTodoInput as ValidatedCreateInput, UpdateTodoInput as ValidatedUpdateInput } from '../schemaValidator/todo.validator.js';
 export class TodoService {
     todoRepository;
+    todoPermissionRepository;
     constructor() {
         this.todoRepository = new TodoRepository();
+        this.todoPermissionRepository = new TodoPermissionRepository();
     }
     async createTodo(data) {
         try {
@@ -17,7 +19,7 @@ export class TodoService {
             };
         }
         catch (error) {
-            console.error(ErrorMessages.Error_Recuperation, error);
+            console.error('Erreur lors de la création du todo:', error);
             return {
                 success: false,
                 error: ErrorMessages.TODO_CREATION_FAILED
@@ -49,10 +51,15 @@ export class TodoService {
     }
     async getAllTodos(options) {
         try {
-            const where = options?.completed !== undefined
-                ? { completed: options.completed }
-                : undefined;
-            const todos = await this.todoRepository.findAll({ where });
+            const where = {};
+            if (options?.completed !== undefined) {
+                where.completed = options.completed;
+            }
+            if (options?.userId !== undefined) {
+                where.userId = options.userId;
+            }
+            const whereClause = Object.keys(where).length > 0 ? where : undefined;
+            const todos = await this.todoRepository.findAll({ where: whereClause });
             return {
                 success: true,
                 data: todos,
@@ -67,13 +74,21 @@ export class TodoService {
             };
         }
     }
-    async updateTodo(id, data) {
+    async updateTodo(id, idUser, data) {
         try {
             const existingTodo = await this.todoRepository.findById(id);
             if (!existingTodo) {
                 return {
                     success: false,
                     error: ErrorMessages.TODO_NOT_FOUND
+                };
+            }
+            const isOwner = idUser === existingTodo.userId;
+            const hasEditPermission = await this.todoPermissionRepository.hasPermission(id, idUser, 'canEdit');
+            if (!isOwner && !hasEditPermission) {
+                return {
+                    success: false,
+                    error: "Vous n'avez pas la permission de modifier ce todo"
                 };
             }
             const updateData = {};
@@ -83,6 +98,8 @@ export class TodoService {
                 updateData.description = data.description;
             if (data.completed !== undefined)
                 updateData.completed = data.completed;
+            if (data.photoUrl !== undefined)
+                updateData.photoUrl = data.photoUrl;
             const updatedTodo = await this.todoRepository.update(id, updateData);
             return {
                 success: true,
@@ -98,13 +115,21 @@ export class TodoService {
             };
         }
     }
-    async deleteTodo(id) {
+    async deleteTodo(id, idUser) {
         try {
             const existingTodo = await this.todoRepository.findById(id);
             if (!existingTodo) {
                 return {
                     success: false,
                     error: ErrorMessages.TODO_NOT_FOUND
+                };
+            }
+            const isOwner = idUser === existingTodo.userId;
+            const hasDeletePermission = await this.todoPermissionRepository.hasPermission(id, idUser, 'canDelete');
+            if (!isOwner && !hasDeletePermission) {
+                return {
+                    success: false,
+                    error: "Vous n'avez pas la permission de supprimer ce todo"
                 };
             }
             const deletedTodo = await this.todoRepository.delete(id);

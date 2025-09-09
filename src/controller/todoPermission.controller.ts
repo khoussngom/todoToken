@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { TodoPermissionService } from '../services/todoPermission.service';
 import { z } from 'zod';
 
-// Schémas de validation
+
 const assignPermissionSchema = z.object({
     todoId: z.number().int().positive(),
     userId: z.number().int().positive(),
@@ -44,7 +44,7 @@ export class TodoPermissionController {
                 res.status(201).json(result);
             } else {
                 const statusCode = result.error?.includes('permission') ? 403 : 
-                                 result.error?.includes('trouvée') ? 404 : 400;
+                                result.error?.includes('trouvée') ? 404 : 400;
                 res.status(statusCode).json(result);
             }
         } catch (error: any) {
@@ -89,7 +89,7 @@ export class TodoPermissionController {
                 res.status(200).json(result);
             } else {
                 const statusCode = result.error?.includes('permission') ? 403 : 
-                                 result.error?.includes('trouvée') ? 404 : 400;
+                                result.error?.includes('trouvée') ? 404 : 400;
                 res.status(statusCode).json(result);
             }
         } catch (error: any) {
@@ -131,7 +131,7 @@ export class TodoPermissionController {
                 res.status(200).json(result);
             } else {
                 const statusCode = result.error?.includes('permission') ? 403 : 
-                                 result.error?.includes('trouvée') ? 404 : 400;
+                                result.error?.includes('trouvée') ? 404 : 400;
                 res.status(statusCode).json(result);
             }
         } catch (error: any) {
@@ -177,7 +177,7 @@ export class TodoPermissionController {
                 res.status(200).json(result);
             } else {
                 const statusCode = result.error?.includes('permission') ? 403 : 
-                                 result.error?.includes('trouvée') ? 404 : 400;
+                                result.error?.includes('trouvée') ? 404 : 400;
                 res.status(statusCode).json(result);
             }
         } catch (error) {

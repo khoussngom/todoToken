@@ -22,18 +22,17 @@ export class PhotoUploadController {
             let photoData: string;
             let folder: string = 'todos';
 
-            // Détecter si c'est un fichier (form-data) ou JSON (base64)
             if (req.file) {
-                // Format form-data avec fichier
+
                 photoData = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
                 folder = req.body.folder || 'todos';
             } else if (req.body.photoData) {
-                // Format JSON avec base64
+
                 const validatedData = uploadPhotoSchema.parse(req.body);
                 photoData = validatedData.photoData;
                 folder = validatedData.folder;
             } else {
-                // Aucune donnée fournie
+
                 res.status(400).json({
                     success: false,
                     error: 'Aucune photo fournie. Utilisez soit "photoData" (JSON) soit "file" (form-data)'
@@ -116,7 +115,7 @@ export class PhotoUploadController {
         }
     };
 
-    // Nouvelle méthode pour l'upload de fichiers via form-data
+
     uploadFile = async (req: Request, res: Response): Promise<void> => {
         try {
             if (!req.user) {
@@ -135,10 +134,10 @@ export class PhotoUploadController {
                 return;
             }
 
-            // Convertir le buffer en base64
+
             const base64String = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
             
-            // Récupérer le dossier depuis les paramètres de formulaire
+
             const folder = req.body.folder || 'todos';
             
             const result = await this.photoUploadService.uploadPhoto(base64String, folder);
@@ -166,41 +165,4 @@ export class PhotoUploadController {
         }
     };
 
-    // Méthode de test pour vérifier la configuration Cloudinary
-    testCloudinary = async (req: Request, res: Response): Promise<void> => {
-        try {
-            if (!req.user) {
-                res.status(401).json({
-                    success: false,
-                    error: 'Utilisateur non authentifié'
-                });
-                return;
-            }
-
-            const result = await this.photoUploadService.testConfiguration();
-            
-            if (result.success) {
-                res.status(200).json({
-                    success: true,
-                    message: 'Configuration Cloudinary OK',
-                    data: {
-                        status: 'Configuration valide',
-                        cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'Configuration par défaut'
-                    }
-                });
-            } else {
-                res.status(400).json({
-                    success: false,
-                    error: result.error,
-                    help: 'Vérifiez vos variables CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY et CLOUDINARY_API_SECRET dans le fichier .env'
-                });
-            }
-        } catch (error: any) {
-            console.error('Erreur dans testCloudinary:', error);
-            res.status(500).json({
-                success: false,
-                error: 'Erreur lors du test de configuration'
-            });
-        }
-    };
 }

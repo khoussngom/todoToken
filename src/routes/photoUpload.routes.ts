@@ -17,6 +17,4 @@ router.post('/upload-file', writeAccess, singleFileUpload, photoUploadController
 
 router.delete('/delete-photo', writeAccess, photoUploadController.deletePhoto);
 
-router.get('/test-cloudinary', photoUploadController.testCloudinary);
-
 export default router;

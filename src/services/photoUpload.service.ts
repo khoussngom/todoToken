@@ -8,7 +8,7 @@ export interface CloudinaryResponse {
 
 export class PhotoUploadService {
     constructor() {
-        // Configuration de Cloudinary
+
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dbfhej7xk',
             api_key: process.env.CLOUDINARY_API_KEY || '873141682942693',
@@ -17,15 +17,10 @@ export class PhotoUploadService {
         });
     }
 
-    /**
-     * Upload une photo vers Cloudinary
-     * @param photoData Base64 string de l'image
-     * @param folder Dossier de destination sur Cloudinary
-     * @returns URL de l'image uploadée
-     */
+
     async uploadPhoto(photoData: string, folder: string = 'todos'): Promise<CloudinaryResponse> {
         try {
-            // Vérifier si la configuration existe
+
             if (!process.env.CLOUDINARY_CLOUD_NAME && !cloudinary.config().cloud_name) {
                 return {
                     success: false,
@@ -33,7 +28,6 @@ export class PhotoUploadService {
                 };
             }
 
-            // Valider le format de l'image
             if (!photoData.startsWith('data:image/')) {
                 return {
                     success: false,
@@ -41,7 +35,6 @@ export class PhotoUploadService {
                 };
             }
 
-            // Upload vers Cloudinary
             const result = await cloudinary.uploader.upload(photoData, {
                 folder: folder,
                 resource_type: 'auto',
@@ -57,7 +50,6 @@ export class PhotoUploadService {
         } catch (error: any) {
             console.error('Erreur lors de l\'upload de la photo:', error);
             
-            // Messages d'erreur spécifiques
             if (error.error && error.error.message) {
                 return {
                     success: false,
@@ -79,11 +71,7 @@ export class PhotoUploadService {
         }
     }
 
-    /**
-     * Supprime une photo de Cloudinary
-     * @param photoUrl URL de la photo à supprimer
-     * @returns Résultat de la suppression
-     */
+
     async deletePhoto(photoUrl: string): Promise<CloudinaryResponse> {
         try {
             if (!photoUrl || !photoUrl.includes('cloudinary.com')) {
@@ -93,7 +81,6 @@ export class PhotoUploadService {
                 };
             }
 
-            // Extraire le public_id de l'URL
             const publicId = this.extractPublicId(photoUrl);
             if (!publicId) {
                 return {
@@ -102,7 +89,6 @@ export class PhotoUploadService {
                 };
             }
 
-            // Supprimer de Cloudinary
             const result = await cloudinary.uploader.destroy(publicId);
 
             if (result.result === 'ok') {
@@ -125,17 +111,13 @@ export class PhotoUploadService {
         }
     }
 
-    /**
-     * Extrait le public_id d'une URL Cloudinary
-     * @param url URL Cloudinary
-     * @returns Public ID ou null
-     */
+
     private extractPublicId(url: string): string | null {
         try {
-            // Format typique: https://res.cloudinary.com/cloud/image/upload/v123456/folder/filename.ext
+
             const matches = url.match(/\/v\d+\/(.+)$/);
             if (matches && matches[1]) {
-                // Retirer l'extension
+
                 return matches[1].replace(/\.[^/.]+$/, '');
             }
             return null;
@@ -145,33 +127,5 @@ export class PhotoUploadService {
         }
     }
 
-    /**
-     * Test de la configuration Cloudinary
-     * @returns Status de la configuration
-     */
-    async testConfiguration(): Promise<CloudinaryResponse> {
-        try {
-            // Test avec une petite image de test
-            const testImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
-            
-            const result = await this.uploadPhoto(testImage, 'test');
-            
-            if (result.success && result.url) {
-                // Supprimer l'image de test
-                await this.deletePhoto(result.url);
-                return {
-                    success: true,
-                    url: 'Configuration Cloudinary OK'
-                };
-            }
-            
-            return result;
-            
-        } catch (error: any) {
-            return {
-                success: false,
-                error: `Test de configuration échoué: ${error.message}`
-            };
-        }
-    }
+
 }

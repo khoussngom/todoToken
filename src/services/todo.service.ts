@@ -2,7 +2,7 @@ import { TodoRepository } from '../repository/todo.repository.js';
 import { TodoPermissionRepository } from '../repository/todoPermission.repository';
 import { ErrorMessages } from '../enums/errorEnum.js';
 import { SuccessMessages } from '../enums/successEnums.js';
-import type { Todo, ApiResponse } from '../interface/todo.interface';
+import type { Todo, ApiResponse } from '../interfaces/todo.interface';
 import { Prisma } from '../generated/prisma/index.js';
 
 export class TodoService {

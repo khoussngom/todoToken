@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PhotoUploadController } from '../controller/photoUpload.controller';
-import { AuthMiddleware } from '../middleware.ts/auth';
+import { AuthMiddleware } from '../middleware/auth';
 import { AuthService } from '../services/auth.service';
 import { singleFileUpload } from '../middleware/upload.middleware';
 

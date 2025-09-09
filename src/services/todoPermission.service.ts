@@ -1,7 +1,7 @@
 import { TodoPermissionRepository } from '../repository/todoPermission.repository';
 import { TodoRepository } from '../repository/todo.repository';
 import { CreateTodoPermissionInput, UpdateTodoPermissionInput, TodoPermissionResponse } from '../interfaces/TodoPermission.interface';
-import { ApiResponse } from '../interface/todo.interface';
+import { ApiResponse } from '../interfaces/todo.interface';
 
 export class TodoPermissionService {
     private todoPermissionRepository: TodoPermissionRepository;

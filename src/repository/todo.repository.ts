@@ -1,5 +1,5 @@
 import { PrismaClient, Prisma } from '../generated/prisma/index.js';
-import type { Todo } from '../interface/todo.interface.js';
+import type { Todo } from '../interfaces/todo.interface.js';
 
 
 export class TodoRepository {

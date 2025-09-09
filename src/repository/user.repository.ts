@@ -1,5 +1,5 @@
 import { PrismaClient } from '../generated/prisma/index.js';
-import { User } from '../interface/user.interface.js';
+import { User } from '../interfaces/user.interface.js';
 
 type UserCreateInput = {
     email: string;

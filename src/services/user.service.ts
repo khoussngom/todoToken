@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from "../repository/user.repository";
-import { User } from "../interface/user.interface";
+import { User } from "../interfaces/user.interface";
 
 type UserCreateInput = {
     email: string;

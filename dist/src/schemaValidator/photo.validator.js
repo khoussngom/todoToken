@@ -1,5 +1,4 @@
 import { z } from 'zod';
-// Validation pour l'upload de photo
 export const uploadPhotoSchema = z.object({
     photoData: z.string()
         .min(1, 'Photo requise')
@@ -11,7 +10,6 @@ export const uploadPhotoSchema = z.object({
         .optional()
         .default('todos')
 });
-// Validation pour la suppression de photo
 export const deletePhotoSchema = z.object({
     photoUrl: z.string()
         .url('URL invalide')

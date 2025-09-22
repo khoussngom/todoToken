@@ -37,6 +37,7 @@ model User {
   role  String @default("USER") @db.VarChar(50)
   todos Todo[]
   todoPermissions TodoPermission[]
+  activityLogs ActivityLog[]
 
   @@map("users")
 }
@@ -54,4 +55,20 @@ model TodoPermission {
 
   @@unique([todoId, userId])
   @@map("todo_permissions")
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  action    String   @db.VarChar(100) // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
+  entity    String   @db.VarChar(50)  // TODO, USER, PERMISSION, etc.
+  entityId  Int?     // ID de l'entité concernée
+  details   String?  @db.Text         // Détails supplémentaires en JSON
+  ipAddress String?  @db.VarChar(45)  // Adresse IP de l'utilisateur
+  userAgent String?  @db.Text         // User agent du navigateur
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
 }

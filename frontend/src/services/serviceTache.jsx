@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_URL } from "../api/ApiUrl";
+import authService from "./authService";
 
 class ServiceTache {
     
@@ -14,8 +15,8 @@ class ServiceTache {
     }
 
 
-    obtenirHeaders() {
-        const token = this.obtenirToken();
+    async obtenirHeaders() {
+        const token = await authService.getValidToken();
         return {
             'Content-Type': 'application/json',
             ...(token && { 'Authorization': `Bearer ${token}` })
@@ -28,7 +29,7 @@ class ServiceTache {
             const reponse = await axios.post(
                 `${API_URL}/todo`,
                 donneesToche,
-                { headers: this.obtenirHeaders() }
+                { headers: await this.obtenirHeaders() }
             );
             return reponse.data;
         } catch (error) {
@@ -37,20 +38,30 @@ class ServiceTache {
     }
 
 
-    async obtenirToutesLesTaches(filtres = {}) {
+    async obtenirToutesLesTaches(filtres = {}, pagination = {}) {
         try {
+            let url = `${API_URL}/todo`;
             const params = new URLSearchParams();
+
             if (filtres.completed !== undefined) {
-                params.append('completed', filtres.completed.toString());
+                params.append('completed', filtres.completed);
             }
             if (filtres.userId !== undefined) {
-                params.append('userId', filtres.userId.toString());
+                params.append('userId', filtres.userId);
             }
 
-            const reponse = await axios.get(
-                `${API_URL}/todo?${params.toString()}`,
-                { headers: this.obtenirHeaders() }
-            );
+            if (pagination.page !== undefined) {
+                params.append('page', pagination.page);
+            }
+            if (pagination.limit !== undefined) {
+                params.append('limit', pagination.limit);
+            }
+
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+
+            const reponse = await axios.get(url, { headers: await this.obtenirHeaders() });
             return reponse.data;
         } catch (error) {
             throw error.response ? error.response.data : new Error("Erreur réseau");
@@ -62,7 +73,7 @@ class ServiceTache {
         try {
             const reponse = await axios.get(
                 `${API_URL}/todo/${id}`,
-                { headers: this.obtenirHeaders() }
+                { headers: await this.obtenirHeaders() }
             );
             return reponse.data;
         } catch (error) {
@@ -76,7 +87,7 @@ class ServiceTache {
             const reponse = await axios.put(
                 `${API_URL}/todo/${id}`,
                 donneesToche,
-                { headers: this.obtenirHeaders() }
+                { headers: await this.obtenirHeaders() }
             );
             return reponse.data;
         } catch (error) {
@@ -89,7 +100,7 @@ class ServiceTache {
         try {
             const reponse = await axios.delete(
                 `${API_URL}/todo/${id}`,
-                { headers: this.obtenirHeaders() }
+                { headers: await this.obtenirHeaders() }
             );
             return reponse.data;
         } catch (error) {
@@ -104,21 +115,20 @@ class ServiceTache {
             formData.append('file', fichierPhoto);
             formData.append('folder', dossier);
 
+            const headers = await this.obtenirHeaders();
+            headers['Content-Type'] = 'multipart/form-data';
+
             const reponse = await axios.post(
                 `${API_URL}/upload-file`,
                 formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${this.obtenirToken()}`
-                    }
-                }
+                { headers }
             );
             return reponse.data;
         } catch (error) {
             throw error.response ? error.response.data : new Error("Erreur réseau");
         }
     }
+
 }
 
 const serviceTache = new ServiceTache();

@@ -14,13 +14,37 @@ export class TodoRepository {
     }
 
     async findById(id: number): Promise<Todo | null> {
-        return await this.prisma.todo.findUnique({where: { id }});
+        return await this.prisma.todo.findUnique({
+            where: { id },
+            include: {
+                user: true,
+                permissions: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
+        });
     }
 
-    async findAll(options?: {where?: Prisma.TodoWhereInput}): Promise<Todo[]> {
+    async findAll(options?: {
+        where?: Prisma.TodoWhereInput;
+        skip?: number;
+        take?: number;
+    }): Promise<Todo[]> {
         return await this.prisma.todo.findMany({
-        where: options?.where,
-        orderBy: { createdAt: 'desc' }
+            where: options?.where,
+            skip: options?.skip,
+            take: options?.take,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: true,
+                permissions: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
         });
     }
 

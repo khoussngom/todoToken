@@ -4,6 +4,8 @@ import AjouterTache from "../component/AjouterTache";
 import ModifierTache from "../component/ModifierTache";
 import AfficherTache from "../component/AfficherTache";
 import AssignerPermission from "../component/AssignerPermission";
+import ActivitesRecentes from "../component/ActivitesRecentes";
+import Historique from "../component/Historique";
 import { useNavigate } from "react-router-dom";
 import { 
     FiList, 
@@ -12,7 +14,8 @@ import {
     FiEye, 
     FiUsers, 
     FiLogOut,
-    FiArrowLeft 
+    FiArrowLeft,
+    FiActivity 
 } from "react-icons/fi";
 
 function Taches() {
@@ -88,7 +91,7 @@ function Taches() {
                 <div className="max-w-6xl mx-auto px-6 py-6">
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+                            <h1 className="text-4xl font-bold bg-blue-600 bg-clip-text text-transparent">
                                 Marakhib ToDo
                             </h1>
                             <p className="text-gray-600 mt-2 text-lg">
@@ -98,7 +101,20 @@ function Taches() {
                         
                         <div className="flex items-center gap-4">
 
-                            {vueActuelle !== "liste" && (
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setVueActuelle("historique")}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-200 ${
+                                    vueActuelle === "historique"
+                                        ? "bg-cyan-500 text-white shadow-md"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                }`}
+                            >
+                                <FiActivity size={18} />
+                                Historique
+                            </button>
+
+                            {vueActuelle !== "liste" && vueActuelle !== "historique" && (
                                 <button
                                     onClick={retournerALaListe}
                                     className="flex items-center gap-2 bg-gray-500 text-white px-6 py-3 rounded-full hover:bg-gray-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
@@ -107,12 +123,22 @@ function Taches() {
                                     Retour
                                 </button>
                             )}
+                        </div>
                             
                             <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-full">
-                                <span className="font-medium">ID: {utilisateur.id}</span>
-                                <span>•</span>
+                                <span className="font-bold">Role</span>
+                                <span>:</span>
                                 <span className="capitalize">{utilisateur.role}</span>
                             </div>
+
+                            {vueActuelle === "historique" && (                                <button
+                                    onClick={retournerALaListe}
+                                    className="flex items-center gap-2 bg-gray-500 text-white px-6 py-3 rounded-full hover:bg-gray-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                                >
+                                    <FiArrowLeft size={20} />
+                                    Retour
+                                </button>
+                            )}
                             
                             <button
                                 onClick={seDeconnecter}
@@ -129,10 +155,21 @@ function Taches() {
 
             <main className="max-w-6xl mx-auto px-6 py-8">
                 {vueActuelle === "liste" && (
-                    <ListerTaches
-                        onSelectionnerTache={gererSelectionTache}
-                        onCreerTache={gererCreationTache}
-                    />
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                        <div className="lg:col-span-3">
+                            <ListerTaches
+                                onSelectionnerTache={gererSelectionTache}
+                                onCreerTache={gererCreationTache}
+                            />
+                        </div>
+                        <div className="lg:col-span-1">
+                            <ActivitesRecentes limit={8} />
+                        </div>
+                    </div>
+                )}
+
+                {vueActuelle === "historique" && (
+                    <Historique />
                 )}
 
                 {vueActuelle === "ajouter" && (
@@ -163,7 +200,7 @@ function Taches() {
                         <div className="text-center">
                             <button
                                 onClick={() => gererPermissions(tacheSelectionnee)}
-                                className="flex items-center gap-3 mx-auto bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-full hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                                className="flex items-center gap-3 mx-auto bg-blue-600 text-white px-8 py-4 rounded-full hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                             >
                                 <FiUsers size={22} />
                                 Assigner des permissions

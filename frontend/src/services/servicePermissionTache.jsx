@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_URL } from "../api/ApiUrl";
+import authService from "./authService";
 
 class ServicePermissionTache {
     
@@ -14,21 +15,33 @@ class ServicePermissionTache {
     }
 
 
-    obtenirHeaders() {
-        const token = this.obtenirToken();
+    async obtenirHeaders() {
+        const token = await authService.getValidToken();
         return {
             'Content-Type': 'application/json',
             ...(token && { 'Authorization': `Bearer ${token}` })
         };
     }
 
+    async assignerPermissionParLogin(donneesPermission) {
+        try {
+            const reponse = await axios.post(
+                `${API_URL}/todo-permissions/by-login`,
+                donneesPermission,
+                { headers: await this.obtenirHeaders() }
+            );
+            return reponse.data;
+        } catch (error) {
+            throw error.response ? error.response.data : new Error("Erreur réseau");
+        }
+    }
 
     async assignerPermission(donneesPermission) {
         try {
             const reponse = await axios.post(
                 `${API_URL}/todo-permissions`,
                 donneesPermission,
-                { headers: this.obtenirHeaders() }
+                { headers: await this.obtenirHeaders() }
             );
             return reponse.data;
         } catch (error) {
@@ -42,7 +55,7 @@ class ServicePermissionTache {
             const reponse = await axios.put(
                 `${API_URL}/todo-permissions/${idTache}/${idUtilisateur}`,
                 donneesPermission,
-                { headers: this.obtenirHeaders() }
+                { headers: await this.obtenirHeaders() }
             );
             return reponse.data;
         } catch (error) {
@@ -55,7 +68,7 @@ class ServicePermissionTache {
         try {
             const reponse = await axios.delete(
                 `${API_URL}/todo-permissions/${idTache}/${idUtilisateur}`,
-                { headers: this.obtenirHeaders() }
+                { headers: await this.obtenirHeaders() }
             );
             return reponse.data;
         } catch (error) {
@@ -68,7 +81,7 @@ class ServicePermissionTache {
         try {
             const reponse = await axios.get(
                 `${API_URL}/todo-permissions/${idTache}`,
-                { headers: this.obtenirHeaders() }
+                { headers: await this.obtenirHeaders() }
             );
             return reponse.data;
         } catch (error) {

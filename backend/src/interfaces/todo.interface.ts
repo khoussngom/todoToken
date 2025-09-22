@@ -17,3 +17,23 @@ export interface ApiResponse<T> {
     error?: string;
 }
 
+export interface PaginationOptions {
+    page?: number;
+    limit?: number;
+}
+
+export interface PaginatedResponse<T> {
+    success: boolean;
+    data?: T[];
+    pagination?: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        itemsPerPage: number;
+        hasNextPage: boolean;
+        hasPrevPage: boolean;
+    };
+    message?: string;
+    error?: string;
+}
+

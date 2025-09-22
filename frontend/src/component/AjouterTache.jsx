@@ -138,9 +138,8 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                         id="titre"
                         value={titre}
                         onChange={(e) => setTitre(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-lg transition-all duration-200"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-black text-lg transition-all duration-200"
                         placeholder="Entrez le titre de la tâche"
-                        required
                     />
                     {erreurs.title && (
                         <div className="flex items-center gap-2 text-red-500 text-sm mt-2">
@@ -159,7 +158,7 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                         id="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-lg transition-all duration-200"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-lg text-black transition-all duration-200"
                         placeholder="Entrez la description (optionnel)"
                         rows="4"
                     />
@@ -239,7 +238,7 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                         className={`flex-1 flex items-center justify-center gap-3 py-4 px-6 rounded-full font-semibold text-lg transition-all duration-200 ${
                             chargement || !titre.trim()
                                 ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105'
+                                : 'bg-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105'
                         } text-white`}
                     >
                         {chargement ? (

@@ -132,7 +132,7 @@ function ModifierTache({ tache, onTacheModifiee, onAnnuler }) {
                         id="titre"
                         value={titre}
                         onChange={(e) => setTitre(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300  text-black rounded-md focus:outline-none focus:ring-2 focus:text-black ring-blue-500"
                         placeholder="Entrez le titre de la tâche"
                         required
                     />
@@ -141,14 +141,14 @@ function ModifierTache({ tache, onTacheModifiee, onAnnuler }) {
 
 
                 <div>
-                    <label htmlFor="description" className="block text-gray-700 mb-2 font-medium">
+                    <label htmlFor="description" className="block text-black mb-2 font-medium">
                         Description
                     </label>
                     <textarea
                         id="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus: focus:text-black ring-blue-500"
                         placeholder="Entrez la description (optionnel)"
                         rows="3"
                     />
@@ -157,12 +157,12 @@ function ModifierTache({ tache, onTacheModifiee, onAnnuler }) {
 
 
                 <div>
-                    <label className="flex items-center gap-2">
+                    <label className="flex  text-black items-center gap-2">
                         <input
                             type="checkbox"
                             checked={termine}
                             onChange={(e) => setTermine(e.target.checked)}
-                            className="rounded focus:ring-2 focus:ring-blue-500"
+                            className="rounded focus:ring-2 focus: focus:text-black ring-blue-500"
                         />
                         <span className="text-gray-700 font-medium">Tâche terminée</span>
                     </label>
@@ -172,11 +172,11 @@ function ModifierTache({ tache, onTacheModifiee, onAnnuler }) {
                 {photoActuelle && (
                     <div>
                         <label className="block text-gray-700 mb-2 font-medium">Photo actuelle</label>
-                        <div className="relative">
+                        <div className="relative text-black">
                             <img
                                 src={photoActuelle}
                                 alt="Photo actuelle"
-                                className="w-full h-32 object-cover rounded-md border"
+                                className="w-full text-black h-32 focus: object-cover rounded-md border"
                             />
                             <button
                                 type="button"

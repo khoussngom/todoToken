@@ -78,6 +78,31 @@ export class UserController{
                     }
         }
 
+        async refreshToken(req: Request, res: Response)
+        {
+                const { refreshToken } = req.body;
+                if (!refreshToken) {
+                        return res.status(400).json({ 
+                            success: false,
+                            error: 'Refresh token is required' 
+                        });
+                }
+
+                try {
+                        const result = await this.authService.refreshToken({refreshToken});
+                        res.status(200).json({
+                            success: true,
+                            message: 'Token refreshed successfully',
+                            accessToken: result.accessToken
+                        });
+                    } catch (error) {
+                        res.status(401).json({ 
+                            success: false,
+                            error: 'Invalid refresh token' 
+                        });
+                    }
+        }
+
         async getUserById(req: Request, res: Response)
         {
                 const id = parseInt(req.params.id, 10);

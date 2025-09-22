@@ -6,6 +6,7 @@ import router from './src/routes/todo.routes.js'
 import * as userRouter  from './src/routes/user.route.js';
 import todoPermissionRouter from './src/routes/todoPermission.routes.js';
 import photoUploadRouter from './src/routes/photoUpload.routes.js';
+import activityLogRouter from './src/routes/activityLog.routes.js';
 import { errorHandler, notFoundHandler,} from './src/middleware/error.middleware.js';
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use('/api', router);
 app.use('/api', userRouter.default);
 app.use('/api', todoPermissionRouter);
 app.use('/api', photoUploadRouter);
+app.use('/api/activity-logs', activityLogRouter);
 
 app.get('/', (req, res) => {
 res.status(200).json({
@@ -56,7 +58,13 @@ res.status(200).json({
             
             'POST /api/upload-photo - Uploader une photo (JSON base64)',
             'POST /api/upload-file - Uploader un fichier (form-data)',
-            'DELETE /api/delete-photo - Supprimer une photo'
+            'DELETE /api/delete-photo - Supprimer une photo',
+            
+            'GET /api/activity-logs - Liste des logs d\'activité',
+            'GET /api/activity-logs/my - Mes logs d\'activité',
+            'GET /api/activity-logs/:id - Récupérer un log spécifique',
+            'GET /api/activity-logs/user/:userId - Logs d\'un utilisateur',
+            'DELETE /api/activity-logs/clean - Nettoyer les anciens logs (admin)'
         ]
         }
     });

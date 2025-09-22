@@ -80,15 +80,22 @@ export class TodoController {
                 try {
                         const validatedQuery = completedFilterSchema.parse(req.query);
 
-                        const { completed, userId } = validatedQuery;
+                        const { completed, userId, page, limit } = validatedQuery;
                     
-                        const filterOptions: { completed?: boolean; userId?: number } = {};
+                        const filterOptions: { completed?: boolean; userId?: number; page?: number; limit?: number } = {};
                         if (completed !== undefined) {
                                 filterOptions.completed = completed;
                         }
                         if (userId !== undefined) {
                                 filterOptions.userId = userId;
                         }
+                        if (page !== undefined) {
+                                filterOptions.page = page;
+                        }
+                        if (limit !== undefined) {
+                                filterOptions.limit = limit;
+                        }
+                        
                         const result = await this.todoService.getAllTodos(filterOptions);
                         if (result.success) {
                                 res.status(200).json(result);

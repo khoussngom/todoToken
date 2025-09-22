@@ -20,7 +20,10 @@ export const todoParamsSchema = z.object({
 
 export const completedFilterSchema = z.object({
     completed: z.string().transform(val => val === 'true').pipe(z.boolean()).optional(),
-userId: z.string().transform(val => parseInt(val, 10)).pipe(z.number().int().positive('L\'ID utilisateur doit être un entier positif')).optional()});
+    userId: z.string().transform(val => parseInt(val, 10)).pipe(z.number().int().positive('L\'ID utilisateur doit être un entier positif')).optional(),
+    page: z.string().transform(val => parseInt(val, 10)).pipe(z.number().int().positive('Le numéro de page doit être un entier positif')).optional(),
+    limit: z.string().transform(val => parseInt(val, 10)).pipe(z.number().int().min(1, 'La limite doit être au minimum 1').max(50, 'La limite ne peut pas dépasser 50')).optional()
+});
 
 export type CreateTodoInput = z.infer<typeof createTodoSchema>;
 export type UpdateTodoInput = z.infer<typeof updateTodoSchema>;

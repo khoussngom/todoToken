@@ -141,7 +141,7 @@ function AssignerPermission({ tache, onPermissionAssignee, onAnnuler }) {
                     
                     {!peutModifier && !peutSupprimer && (
                         <p className="text-sm text-gray-500 mt-2 bg-gray-50 p-2 rounded">
-                            💡 Si aucune permission n'est cochée, l'utilisateur aura uniquement accès en lecture seule.
+                            Si aucune permission n'est cochée, l'utilisateur aura uniquement accès en lecture seule.
                         </p>
                     )}
                 </div>
@@ -182,7 +182,7 @@ function AssignerPermission({ tache, onPermissionAssignee, onAnnuler }) {
 
 
             <div className="mt-6 p-3 bg-gray-50 rounded-md text-sm text-gray-600">
-                <p className="font-medium mb-1">💡 Comment trouver l'ID d'un utilisateur ?</p>
+                <p className="font-medium mb-1"> Comment trouver l'ID d'un utilisateur ?</p>
                 <p>L'ID utilisateur est un nombre unique assigné à chaque utilisateur lors de son inscription. Demandez à l'utilisateur son ID ou consultez la liste des utilisateurs si vous êtes administrateur.</p>
             </div>
         </div>

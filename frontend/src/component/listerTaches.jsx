@@ -18,11 +18,10 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
     const [taches, setTaches] = useState([]);
     const [chargement, setChargement] = useState(false);
     const [erreur, setErreur] = useState("");
-    const [filtreTache, setFiltreTache] = useState("toutes"); // toutes, terminees, encours
+    const [filtreTache, setFiltreTache] = useState("toutes");
 
     useEffect(() => {
         chargerTaches();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filtreTache]);
 
     const chargerTaches = async () => {
@@ -55,7 +54,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
         try {
             const resultat = await serviceTache.modifierTache(tacheId, { completed: termine });
             if (resultat.success) {
-                chargerTaches(); // Recharger la liste
+                chargerTaches();
             } else {
                 setErreur(resultat.error || "Erreur lors de la mise à jour");
             }
@@ -72,7 +71,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
         try {
             const resultat = await serviceTache.supprimerTache(tacheId);
             if (resultat.success) {
-                chargerTaches(); // Recharger la liste
+                chargerTaches();
             } else {
                 setErreur(resultat.error || "Erreur lors de la suppression");
             }
@@ -94,7 +93,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                 </button>
             </div>
 
-            {/* Filtres */}
+
             <div className="mb-8">
                 <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-md">
                     <FiFilter className="text-gray-500" size={20} />

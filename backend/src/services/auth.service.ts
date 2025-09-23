@@ -82,6 +82,73 @@ export class AuthService {
         }
     }
 
+    async googleAuth({ email, name, googleId, photoURL }: { 
+        email: string; 
+        name: string; 
+        googleId: string; 
+        photoURL?: string; 
+    }): Promise<AuthResponse> {
+        try {
+
+            let user = await this.userRepository.findByGoogleId(googleId);
+            
+            if (!user) {
+
+                user = await this.userRepository.findByEmail(email);
+                
+                if (user) {
+
+                    user = await this.userRepository.update(user.id, {
+                        name: name || user.name,
+                        googleId,
+                        photoURL
+                    });
+                } else {
+                    user = await this.userRepository.create({
+                        email,
+                        name,
+                        password: '',
+                        role: 'USER',
+                        googleId,
+                        photoURL
+                    });
+                }
+            } else {
+
+                user = await this.userRepository.update(user.id, {
+                    name: name || user.name,
+                    photoURL: photoURL || user.photoURL
+                });
+            }
+
+            const accessToken = this.generateAccessToken({
+                userId: user.id,
+                email: user.email,
+                role: user.role
+            });
+
+            const refreshToken = this.generateRefreshToken({
+                userId: user.id,
+                email: user.email,
+                role: user.role
+            });
+
+            return {
+                accessToken,
+                refreshToken,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role
+                }
+            };
+        } catch (error) {
+            console.error('Erreur Google Auth:', error);
+            throw new ValidationError('Erreur lors de l\'authentification Google');
+        }
+    }
+
     private generateAccessToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
         return jwt.sign(payload, this.accessTokenSecret, {
             expiresIn: this.accessTokenExpiry

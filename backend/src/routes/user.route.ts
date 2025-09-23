@@ -9,6 +9,7 @@ const router = Router();
 const userController = new UserController();
 
 router.post('/users/login', (req, res) => userController.login(req, res));
+router.post('/users/google-auth', (req, res) => userController.googleAuth(req, res));
 router.post('/users/refresh-token', (req, res) => userController.refreshToken(req, res));
 router.post('/users', (req, res) => userController.createUser(req, res));
 

@@ -1,7 +1,8 @@
-import { userSchema } from '../schemaValidator/user.validator';
+import { userSchema, googleAuthSchema } from '../schemaValidator/user.validator';
 import { AuthService } from '../services/auth.service';
 import { UserService } from "../services/user.service";
 import { Request, Response } from 'express';
+import { ZodError } from 'zod';
 
 export class UserController{
     private service: UserService
@@ -101,6 +102,40 @@ export class UserController{
                             error: 'Invalid refresh token' 
                         });
                     }
+        }
+
+        async googleAuth(req: Request, res: Response)
+        {
+                try {
+                        const validatedData = googleAuthSchema.parse(req.body);
+                        
+                        const result = await this.authService.googleAuth({
+                                ...validatedData,
+                                photoURL: validatedData.photoURL || undefined
+                        });
+                        
+                        res.status(200).json({
+                            success: true,
+                            message: 'Authentification Google réussie',
+                            token: result
+                        });
+                } catch (error: any) {
+                        console.error('Erreur lors de l\'authentification Google:', error);
+                        
+                        if (error instanceof ZodError) {
+                                return res.status(400).json({ 
+                                    success: false,
+                                    error: 'Données invalides',
+                                    details: error.issues 
+                                });
+                        }
+                        
+                        res.status(500).json({ 
+                            success: false,
+                            error: 'Erreur lors de l\'authentification Google',
+                            message: error.message 
+                        });
+                }
         }
 
         async getUserById(req: Request, res: Response)

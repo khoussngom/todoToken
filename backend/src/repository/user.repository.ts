@@ -6,11 +6,15 @@ type UserCreateInput = {
     password: string;
     name?: string | null;
     role?: string;
+    googleId?: string | null;
+    photoURL?: string | null;
 };
 
 type UserUpdateInput = {
     email?: string;
     name?: string | null;
+    googleId?: string | null;
+    photoURL?: string | null;
 };
 
 export class UserRepository {
@@ -48,5 +52,9 @@ export class UserRepository {
 
     async findByEmail(email: string): Promise<User | null> {
         return this.prisma.user.findUnique({ where: { email } });
+    }
+
+    async findByGoogleId(googleId: string): Promise<User | null> {
+        return this.prisma.user.findUnique({ where: { googleId } });
     }
 }

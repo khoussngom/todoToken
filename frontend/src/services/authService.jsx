@@ -1,5 +1,6 @@
-import axios from "axios";
+import axios from "./axiosInterceptor";
 import { API_URL } from "../api/ApiUrl";
+import { auth, provider, signInWithPopup } from "./firebase";
 
 const authService = {
     login: async (userData) => {
@@ -18,6 +19,29 @@ const authService = {
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : new Error("Network Error");
+        }
+    },
+
+    loginWithGoogle: async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            
+            const userData = {
+                email: user.email,
+                name: user.displayName,
+                googleId: user.uid,
+                photoURL: user.photoURL
+            };
+
+            const response = await axios.post(`${API_URL}/users/google-auth`, userData);
+            response && localStorage.setItem("user", JSON.stringify(response.data));
+            return response.data;
+        } catch (error) {
+            if (error.code === 'auth/popup-closed-by-user') {
+                throw new Error("Connexion annulée par l'utilisateur");
+            }
+            throw error.response ? error.response.data : new Error("Erreur d'authentification Google");
         }
     },
 

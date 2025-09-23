@@ -30,11 +30,13 @@ model Todo {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique @db.VarChar(255)
-  password String @db.VarChar(255)
-  name  String? @db.VarChar(255)
-  role  String @default("USER") @db.VarChar(50)
+  id       Int     @id @default(autoincrement())
+  email    String  @unique @db.VarChar(255)
+  password String  @db.VarChar(255)
+  name     String? @db.VarChar(255)
+  role     String  @default("USER") @db.VarChar(50)
+  googleId String? @unique @db.VarChar(255)
+  photoURL String? @db.Text
   todos Todo[]
   todoPermissions TodoPermission[]
   activityLogs ActivityLog[]
@@ -60,12 +62,12 @@ model TodoPermission {
 model ActivityLog {
   id        Int      @id @default(autoincrement())
   userId    Int
-  action    String   @db.VarChar(100) // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
-  entity    String   @db.VarChar(50)  // TODO, USER, PERMISSION, etc.
-  entityId  Int?     // ID de l'entité concernée
-  details   String?  @db.Text         // Détails supplémentaires en JSON
-  ipAddress String?  @db.VarChar(45)  // Adresse IP de l'utilisateur
-  userAgent String?  @db.Text         // User agent du navigateur
+  action    String   @db.VarChar(100)
+  entity    String   @db.VarChar(50)
+  entityId  Int?
+  details   String?  @db.Text
+  ipAddress String?  @db.VarChar(45)
+  userAgent String?  @db.Text
   createdAt DateTime @default(now())
   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

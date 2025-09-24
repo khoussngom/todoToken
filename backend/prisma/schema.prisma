@@ -20,6 +20,7 @@ model Todo {
   description String?  @db.Text
   completed   Boolean  @default(false)
   photoUrl    String?  @db.Text
+  audioUrl    String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      Int      @db.Int

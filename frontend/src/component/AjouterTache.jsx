@@ -1,21 +1,16 @@
 import { useState } from "react";
 import serviceTache from "../services/serviceTache";
-import { 
-    FiPlus, 
-    FiImage, 
-    FiX, 
-    FiSave, 
-    FiArrowLeft,
-    FiUpload,
-    FiCheck,
-    FiAlertCircle
-} from "react-icons/fi";
+import { FiPlus, FiImage, FiX, FiCheck, FiArrowLeft, FiUpload, FiAlertCircle } from "react-icons/fi";
+import AudioRecorder from "./AudioRecorder";
 
 function AjouterTache({ onTacheCreee, onAnnuler }) {
     const [titre, setTitre] = useState("");
     const [description, setDescription] = useState("");
     const [fichierPhoto, setFichierPhoto] = useState(null);
     const [previewPhoto, setPreviewPhoto] = useState(null);
+    const [audioBlob, setAudioBlob] = useState(null);
+    const [audioUrl, setAudioUrl] = useState(null);
+    const [audioConfirme, setAudioConfirme] = useState(false);
     const [chargement, setChargement] = useState(false);
     const [erreurs, setErreurs] = useState({});
     const [erreurGenerale, setErreurGenerale] = useState("");
@@ -26,73 +21,84 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
         if (fichier) {
             setFichierPhoto(fichier);
             const lecteur = new FileReader();
-            lecteur.onload = (event) => {
-                setPreviewPhoto(event.target.result);
-            };
+            lecteur.onload = (event) => setPreviewPhoto(event.target.result);
             lecteur.readAsDataURL(fichier);
         }
     };
 
-
     const supprimerPhoto = () => {
         setFichierPhoto(null);
         setPreviewPhoto(null);
-        document.getElementById('photo-input').value = '';
+        document.getElementById("photo-input").value = "";
+    };
+
+
+    const handleAudioReady = (blob) => {
+        setAudioBlob(blob);
+        setAudioUrl(URL.createObjectURL(blob));
+        setAudioConfirme(false);
+    };
+
+    const annulerAudio = () => {
+        if (audioUrl) {
+            URL.revokeObjectURL(audioUrl);
+            setAudioBlob(null);
+            setAudioUrl(null);
+            setAudioConfirme(false);
+        }
+    };
+
+    const confirmerAudio = () => {
+        if (audioUrl) setAudioConfirme(true);
     };
 
 
     const soumettreFormulaire = async (e) => {
         e.preventDefault();
-        
-
         setErreurs({});
         setErreurGenerale("");
         setChargement(true);
 
         try {
             let urlPhoto = null;
-
+            let urlAudio = null;
 
             if (fichierPhoto) {
-                const resultatUpload = await serviceTache.uploaderPhoto(fichierPhoto);
-                if (resultatUpload.success) {
-                    urlPhoto = resultatUpload.data.url;
-                } else {
-                    throw new Error(resultatUpload.error || "Erreur lors de l'upload de la photo");
-                }
+                const resultatUploadPhoto = await serviceTache.uploaderPhoto(fichierPhoto);
+                if (resultatUploadPhoto.success) urlPhoto = resultatUploadPhoto.data.url;
+                else throw new Error(resultatUploadPhoto.error || "Erreur lors de l'upload de la photo");
             }
 
+            if (audioBlob) {
+                urlAudio = await serviceTache.uploaderAudio(audioBlob);
+            }
 
             const utilisateur = localStorage.getItem("user");
             const donneeUtilisateur = JSON.parse(utilisateur);
             const idUtilisateur = donneeUtilisateur?.token?.user?.id;
 
-            if (!idUtilisateur) {
-                throw new Error("Utilisateur non connecté");
-            }
+            if (!idUtilisateur) throw new Error("Utilisateur non connecté");
 
-
-            const donneesToche = {
+            const donneesTache = {
                 title: titre,
                 description: description || null,
                 photoUrl: urlPhoto,
+                audioUrl: urlAudio,
                 userId: idUtilisateur
             };
 
-            const resultat = await serviceTache.creerTache(donneesToche);
+            const resultat = await serviceTache.creerTache(donneesTache);
 
             if (resultat.success) {
-
                 setTitre("");
                 setDescription("");
                 setFichierPhoto(null);
                 setPreviewPhoto(null);
-                document.getElementById('photo-input').value = '';
-                
-
-                if (onTacheCreee) {
-                    onTacheCreee(resultat.data);
-                }
+                setAudioBlob(null);
+                setAudioUrl(null);
+                setAudioConfirme(false);
+                document.getElementById("photo-input").value = "";
+                if (onTacheCreee) onTacheCreee(resultat.data);
             } else {
                 setErreurGenerale(resultat.error || "Erreur lors de la création de la tâche");
             }
@@ -100,7 +106,6 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
         } catch (err) {
             console.error("Erreur:", err);
             if (err.details && Array.isArray(err.details)) {
-
                 const erreursChamps = {};
                 err.details.forEach(detail => {
                     if (detail.path && detail.path.length > 0) {
@@ -126,7 +131,7 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                 </div>
                 <h2 className="text-3xl font-bold text-gray-800">Ajouter une tâche</h2>
             </div>
-            
+
             <form onSubmit={soumettreFormulaire} className="space-y-6">
 
                 <div>
@@ -143,8 +148,7 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                     />
                     {erreurs.title && (
                         <div className="flex items-center gap-2 text-red-500 text-sm mt-2">
-                            <FiAlertCircle size={16} />
-                            {erreurs.title}
+                            <FiAlertCircle size={16} /> {erreurs.title}
                         </div>
                     )}
                 </div>
@@ -152,20 +156,19 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
 
                 <div>
                     <label htmlFor="description" className="block text-gray-700 mb-3 font-semibold text-lg">
-                        Description
+                        Description <span className="text-red-500">*</span>
                     </label>
                     <textarea
                         id="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-lg text-black transition-all duration-200"
-                        placeholder="Entrez la description (optionnel)"
+                        placeholder="Entrez la description"
                         rows="4"
                     />
                     {erreurs.description && (
                         <div className="flex items-center gap-2 text-red-500 text-sm mt-2">
-                            <FiAlertCircle size={16} />
-                            {erreurs.description}
+                            <FiAlertCircle size={16} /> {erreurs.description}
                         </div>
                     )}
                 </div>
@@ -174,11 +177,9 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                 <div>
                     <label htmlFor="photo-input" className="block text-gray-700 mb-3 font-semibold text-lg">
                         <div className="flex items-center gap-2">
-                            <FiImage size={20} />
-                            Photo (optionnel)
+                            <FiImage size={20} /> Photo (optionnel)
                         </div>
                     </label>
-                    
                     <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-cyan-400 transition-colors duration-200">
                         <input
                             type="file"
@@ -187,10 +188,7 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                             onChange={gererSelectionPhoto}
                             className="hidden"
                         />
-                        <label 
-                            htmlFor="photo-input" 
-                            className="cursor-pointer flex flex-col items-center gap-3"
-                        >
+                        <label htmlFor="photo-input" className="cursor-pointer flex flex-col items-center gap-3">
                             <div className="bg-cyan-100 p-4 rounded-full">
                                 <FiUpload size={24} className="text-cyan-600" />
                             </div>
@@ -200,8 +198,6 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                             </div>
                         </label>
                     </div>
-                    
-
                     {previewPhoto && (
                         <div className="mt-4 relative">
                             <img
@@ -221,6 +217,34 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                 </div>
 
 
+                <div>
+                    <label className="block text-gray-700 mb-3 font-semibold text-lg">Audio (optionnel)</label>
+                    <AudioRecorder onAudioReady={handleAudioReady} disabled={chargement} />
+                    {audioUrl && (
+                        <div className="flex flex-col items-center mt-3 gap-2">
+                            <audio controls src={audioUrl} className="w-full" />
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={confirmerAudio}
+                                    disabled={audioConfirme}
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                >
+                                    {audioConfirme ? "Audio enregistré" : "Confirmer"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={annulerAudio}
+                                    disabled={audioConfirme}
+                                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                                >
+                                    Annuler
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {erreurGenerale && (
                     <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
                         <div className="flex items-center gap-2">
@@ -230,15 +254,14 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                     </div>
                 )}
 
-
                 <div className="flex gap-4 pt-6">
                     <button
                         type="submit"
                         disabled={chargement || !titre.trim()}
                         className={`flex-1 flex items-center justify-center gap-3 py-4 px-6 rounded-full font-semibold text-lg transition-all duration-200 ${
                             chargement || !titre.trim()
-                                ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105'
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105"
                         } text-white`}
                     >
                         {chargement ? (
@@ -248,12 +271,10 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                             </>
                         ) : (
                             <>
-                                <FiCheck size={22} />
-                                Créer la tâche
+                                <FiCheck size={22} /> Créer la tâche
                             </>
                         )}
                     </button>
-                    
                     {onAnnuler && (
                         <button
                             type="button"
@@ -261,18 +282,10 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                             disabled={chargement}
                             className="flex items-center justify-center gap-3 py-4 px-6 bg-gray-500 text-white rounded-full hover:bg-gray-600 font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
-                            <FiArrowLeft size={20} />
-                            Annuler
+                            <FiArrowLeft size={20} /> Annuler
                         </button>
                     )}
                 </div>
-
-
-                {erreurGenerale && (
-                    <div className="text-red-500 text-center mt-3 p-2 bg-red-50 rounded-md">
-                        {erreurGenerale}
-                    </div>
-                )}
             </form>
         </div>
     );

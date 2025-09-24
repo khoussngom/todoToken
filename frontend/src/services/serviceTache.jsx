@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "../api/ApiUrl";
+import { API_AUDIO_URL, API_URL } from "../api/ApiUrl";
 import authService from "./authService";
 
 class ServiceTache {
@@ -129,6 +129,20 @@ class ServiceTache {
         }
     }
 
+async uploaderAudio(audioBlob) {
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "audio.webm");
+
+    try {
+        const res = await axios.post(`${API_AUDIO_URL}/upload-audio`, formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+        });
+        return res.data.url;
+    } catch (err) {
+        console.error("Erreur upload audio :", err);
+        throw err;
+    }
+}
 }
 
 const serviceTache = new ServiceTache();

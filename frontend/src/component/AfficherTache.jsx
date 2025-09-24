@@ -176,6 +176,15 @@ function AfficherTache({ tache, onModifier, onSupprimer, onFermer }) {
                 </div>
             )}
 
+            {tache.audioUrl && (
+                <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Audio</h3>
+                    <audio controls className="w-full">
+                        <source src={tache.audioUrl} type="audio/webm" />
+                        Votre navigateur ne supporte pas la lecture audio.
+                    </audio>
+                </div>
+            )}
 
             <div className="mb-6 bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-700 mb-3">Informations</h3>

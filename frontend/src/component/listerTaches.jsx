@@ -15,7 +15,8 @@ import {
     FiChevronLeft,
     FiChevronRight,
     FiUser,
-    FiLock
+    FiLock,
+    FiFileText
 } from "react-icons/fi";
 
 function ListerTaches({ onSelectionnerTache, onCreerTache }) {
@@ -33,6 +34,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
         hasPrevPage: false
     });
 
+    // Récupérer l'utilisateur connecté au chargement du composant
     useEffect(() => {
         const utilisateur = localStorage.getItem("user");
         if (utilisateur) {
@@ -180,19 +182,47 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
         }));
     };
 
+    const getGradientByStatus = (tache, estTacheUtilisateur) => {
+        if (tache.completed) {
+            return "bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600";
+        }
+        if (estTacheUtilisateur) {
+            return "bg-gradient-to-br from-blue-400 via-purple-500 to-indigo-600";
+        }
+        return "bg-gradient-to-br from-gray-400 via-slate-500 to-gray-600";
+    };
+
+    const getWavePattern = () => (
+        <div className="absolute inset-0 opacity-20">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+                <path
+                    d="M20,20 Q30,10 40,20 T60,20 T80,20 Q90,30 80,40 T60,40 T40,40 Q30,50 40,60 T60,60 T80,60"
+                    stroke="rgba(255,255,255,0.3)"
+                    strokeWidth="0.5"
+                    fill="none"
+                />
+                <path
+                    d="M10,30 Q20,20 30,30 T50,30 T70,30 Q80,40 70,50 T50,50 T30,50 Q20,60 30,70 T50,70 T70,70"
+                    stroke="rgba(255,255,255,0.2)"
+                    strokeWidth="0.3"
+                    fill="none"
+                />
+            </svg>
+        </div>
+    );
+
     return (
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto p-6">
             <div className="flex justify-between items-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-800">Mes Tâches</h2>
                 <button
                     onClick={onCreerTache}
-                    className="flex items-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
+                    className="flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
                 >
                     <FiPlus size={24} />
                     Créer une tâche
                 </button>
             </div>
-
 
             <div className="mb-8">
                 <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-md">
@@ -236,13 +266,6 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                             </div>
                         </button>
                     </div>
-                    {/* <button
-                        onClick={chargerTaches}
-                        className="ml-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                        title="Actualiser"
-                    >
-                        <FiRefreshCw size={18} className="text-gray-600" />
-                    </button> */}
                 </div>
             </div>
 
@@ -272,7 +295,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                     </button>
                 </div>
             ) : (
-                <div className="grid gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {taches.map((tache) => {
                         const estTacheUtilisateur = utilisateurConnecte && tache.userId === utilisateurConnecte.id;
                         
@@ -284,117 +307,126 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                         const peutSupprimer = estTacheUtilisateur || (permissionUtilisateur && permissionUtilisateur.canDelete);
 
                         return (
-                        <div 
-                            key={tache.id} 
-                            className={`bg-white p-6 rounded-2xl shadow-lg border-l-4 hover:shadow-xl transition-all duration-200 ${
-                                tache.completed ? "border-green-500 bg-green-50/30" : 
-                                estTacheUtilisateur ? "border-cyan-500 bg-cyan-50/20" : "border-gray-400"
-                            }`}
-                        >
-                            <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                    <div className="flex items-center mb-3">
+                            <div 
+                                key={tache.id} 
+                                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
+                            >
+                                <div className={`relative h-32 ${getGradientByStatus(tache, estTacheUtilisateur)} overflow-hidden`}>
+                                    {getWavePattern()}
+                                    
+                                    <div className="absolute top-3 right-3">
+                                        {tache.completed ? (
+                                            <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold border border-white/30">
+                                                ✓ Terminé
+                                            </div>
+                                        ) : estTacheUtilisateur ? (
+                                            <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold border border-white/30 group-hover:opacity-0 transition-opacity duration-200 ">
+                                                Ma tâche
+                                            </div>
+                                        ) : null}
+                                    </div>
+
+                                    <div className="absolute bottom-4 left-4">
+                                        {tache.photoUrl ? (
+                                            <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-white/50 bg-white/10 backdrop-blur-sm">
+                                                <img 
+                                                    src={tache.photoUrl} 
+                                                    alt="Photo de la tâche"
+                                                    className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-300"
+                                                    onClick={() => window.open(tache.photoUrl, '_blank')}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="w-16 h-16 rounded-xl border-2 border-white/50 bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                                                <FiFileText size={24} className="text-white/80" />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
+                                        <button
+                                            onClick={() => onSelectionnerTache(tache)}
+                                            className="p-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-colors border border-white/30"
+                                            title="Voir détails"
+                                        >
+                                            <FiEye size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => onSelectionnerTache(tache, true)}
+                                            disabled={!peutModifier}
+                                            className={`p-2 rounded-lg border border-white/30 backdrop-blur-sm transition-colors ${
+                                                peutModifier 
+                                                    ? "bg-white/20 text-white hover:bg-white/30" 
+                                                    : "bg-black/20 text-white/50 cursor-not-allowed"
+                                            }`}
+                                            title={peutModifier ? "Modifier" : "Modification non autorisée"}
+                                        >
+                                            {peutModifier ? <FiEdit size={14} /> : <FiLock size={14} />}
+                                        </button>
+                                        <button
+                                            onClick={() => supprimerTache(tache.id)}
+                                            disabled={!peutSupprimer}
+                                            className={`p-2 rounded-lg border border-white/30 backdrop-blur-sm transition-colors ${
+                                                peutSupprimer 
+                                                    ? "bg-white/20 text-white hover:bg-red-400/50" 
+                                                    : "bg-black/20 text-white/50 cursor-not-allowed"
+                                            }`}
+                                            title={peutSupprimer ? "Supprimer" : "Suppression non autorisée"}
+                                        >
+                                            {peutSupprimer ? <FiTrash2 size={14} /> : <FiLock size={14} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+
+                                <div className="p-6">
+
+                                    <div className="flex items-start gap-3 mb-3">
                                         <input
                                             type="checkbox"
                                             checked={tache.completed}
                                             onChange={(e) => changerStatutTache(tache.id, e.target.checked)}
                                             disabled={!peutModifier}
-                                            className={`mr-4 w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500 transform scale-125 ${
-                                                !peutModifier ? 'opacity-50 cursor-not-allowed' : ''
+                                        className={`mt-1 w-3 h-3  text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all ${
+                                                !peutModifier ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-110'
                                             }`}
                                         />
-                                        <h3 
-                                            className={`text-xl font-semibold ${
-                                                tache.completed ? "line-through text-gray-500" : "text-gray-800"
-                                            }`}
-                                        >
+                                        <h3 className={`text-lg font-bold leading-tight ${
+                                            tache.completed ? "line-through text-gray-500" : "text-gray-800"
+                                        }`}>
                                             {tache.title}
                                         </h3>
-                                        {estTacheUtilisateur && (
-                                            <span className="ml-3 px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">
-                                                Ma tâche
-                                            </span>
-                                        )}
                                     </div>
-                                    
+
+
                                     {tache.description && (
-                                        <p className={`text-gray-600 mb-4 ml-9 ${
+                                        <p className={`text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed ${
                                             tache.completed ? "line-through" : ""
                                         }`}>
                                             {tache.description}
                                         </p>
                                     )}
 
-                                    {tache.photoUrl && (
-                                        <div className="ml-9 mb-4">
-                                            <div className="relative inline-block">
-                                                <img 
-                                                    src={tache.photoUrl} 
-                                                    alt="Photo de la tâche"
-                                                    className="w-24 h-24 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity shadow-md"
-                                                    onClick={() => window.open(tache.photoUrl, '_blank')}
-                                                />
-                                                <div className="absolute -top-2 -right-2 bg-cyan-500 p-1 rounded-full">
-                                                    <FiImage size={12} className="text-white" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
 
-                                    <div className="ml-9 text-sm text-gray-500 flex items-center gap-4">
+                                    <div className="flex flex-col  items-start justify-arround gap-3 text-xs text-gray-500 pt-3 border-t border-gray-100">
                                         <div className="flex items-center gap-1">
-                                            <FiCalendar size={14} />
-                                            Créée le {new Date(tache.createdAt).toLocaleDateString('fr-FR')}
+                                            <FiCalendar size={12} />
+                                            <span>{new Date(tache.createdAt).toLocaleDateString('fr-FR')}</span>
                                         </div>
-                                        <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full">
-                                            <FiUser size={14} className="text-blue-600" />
-                                            <span className="font-medium text-gray-700">
-                                                {tache.user?.name || 'Utilisateur inconnu'}
+                                        <div className="flex items-center gap-2">
+
+                                            {/* <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                                                estTacheUtilisateur ? 'bg-blue-500' : 'bg-gray-400'
+                                            }`}>
+                                                {estTacheUtilisateur ? 'V' : (tache.user?.name?.charAt(0) || '?')}
+                                            </div> */}
+                                            <span className="truncate max-w-20" title={tache.user?.name || 'Utilisateur inconnu'}>
+                                                {estTacheUtilisateur ? 'Vous' : (tache.user?.name || 'Inconnu')}
                                             </span>
-                                            {estTacheUtilisateur && (
-                                                <span className="ml-1 text-xs bg-cyan-500 text-white px-1 rounded">
-                                                    Vous
-                                                </span>
-                                            )}
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="flex gap-2 ml-4">
-                                    <button
-                                        onClick={() => onSelectionnerTache(tache)}
-                                        className="flex items-center justify-center w-10 h-10 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full transition-all duration-200"
-                                        title="Voir détails"
-                                    >
-                                        <FiEye size={18} />
-                                    </button>
-                                    <button
-                                        onClick={() => onSelectionnerTache(tache, true)}
-                                        disabled={!peutModifier}
-                                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                                            peutModifier 
-                                                ? "text-green-600 hover:text-green-800 hover:bg-green-50" 
-                                                : "text-gray-400 cursor-not-allowed"
-                                        }`}
-                                        title={peutModifier ? "Modifier" : "Modification non autorisée"}
-                                    >
-                                        {peutModifier ? <FiEdit size={18} /> : <FiLock size={18} />}
-                                    </button>
-                                    <button
-                                        onClick={() => supprimerTache(tache.id)}
-                                        disabled={!peutSupprimer}
-                                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                                            peutSupprimer 
-                                                ? "text-red-600 hover:text-red-800 hover:bg-red-50" 
-                                                : "text-gray-400 cursor-not-allowed"
-                                        }`}
-                                        title={peutSupprimer ? "Supprimer" : "Suppression non autorisée"}
-                                    >
-                                        {peutSupprimer ? <FiTrash2 size={18} /> : <FiLock size={18} />}
-                                    </button>
-                                </div>
                             </div>
-                        </div>
                         );
                     })}
                 </div>
@@ -412,9 +444,9 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                             >
                                 <option value={3}>3</option>
                                 <option value={5}>5</option>
-                                <option value={10}>10</option>
+                                <option value={8}>8</option>
+                                <option value={12}>12</option>
                                 <option value={20}>20</option>
-                                <option value={50}>50</option>
                             </select>
                         </div>
 
@@ -428,7 +460,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                                 disabled={!pagination.hasPrevPage}
                                 className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
                                     pagination.hasPrevPage
-                                        ? "bg-cyan-500 text-white hover:bg-cyan-600 shadow-md hover:shadow-lg"
+                                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-md hover:shadow-lg"
                                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                 }`}
                                 title="Page précédente"
@@ -436,14 +468,12 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                                 <FiChevronLeft size={20} />
                             </button>
 
-
                             <div className="flex gap-1">
                                 {(() => {
                                     const pages = [];
                                     const totalPages = pagination.totalPages;
                                     const currentPage = pagination.currentPage;
                                     
-
                                     let startPage = Math.max(1, currentPage - 2);
                                     let endPage = Math.min(totalPages, startPage + 4);
                                     
@@ -458,7 +488,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                                                 onClick={() => allerALaPage(i)}
                                                 className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-200 ${
                                                     i === currentPage
-                                                        ? "bg-cyan-500 text-white shadow-md"
+                                                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
                                                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                                                 }`}
                                             >
@@ -476,7 +506,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                                 disabled={!pagination.hasNextPage}
                                 className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
                                     pagination.hasNextPage
-                                        ? "bg-cyan-500 text-white hover:bg-cyan-600 shadow-md hover:shadow-lg"
+                                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-md hover:shadow-lg"
                                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                 }`}
                                 title="Page suivante"

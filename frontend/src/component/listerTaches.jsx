@@ -443,7 +443,8 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                             <select
                                 value={pagination.itemsPerPage}
                                 onChange={(e) => changerLimiteParPage(parseInt(e.target.value))}
-                                className="px-3 py-1 text-black border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                className="px-3 py-1 text-black border border-gray-300
+                                            rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
                             >
                                 <option value={3}>3</option>
                                 <option value={4}>4</option>

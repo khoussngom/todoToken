@@ -7,6 +7,8 @@ import AssignerPermission from "../component/AssignerPermission";
 import ActivitesRecentes from "../component/ActivitesRecentes";
 import Historique from "../component/Historique";
 import { useNavigate } from "react-router-dom";
+import Notification from "../component/Notification";
+
 import { 
     FiList, 
     FiPlus, 
@@ -139,7 +141,7 @@ function Taches() {
                                     Retour
                                 </button>
                             )}
-                            
+                            <Notification />
                             <button
                                 onClick={seDeconnecter}
                                 className="flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-full hover:bg-red-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"

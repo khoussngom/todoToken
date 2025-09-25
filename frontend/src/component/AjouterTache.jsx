@@ -15,6 +15,9 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
     const [erreurs, setErreurs] = useState({});
     const [erreurGenerale, setErreurGenerale] = useState("");
 
+    // Garder uniquement les états pour date et heure combinés
+    const [dateHeureDebut, setDateHeureDebut] = useState("");
+    const [dateHeureFin, setDateHeureFin] = useState("");
 
     const gererSelectionPhoto = (e) => {
         const fichier = e.target.files[0];
@@ -84,8 +87,25 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                 description: description || null,
                 photoUrl: urlPhoto,
                 audioUrl: urlAudio,
-                userId: idUtilisateur
+                userId: idUtilisateur,
+                dateHeureDebut: dateHeureDebut || null,
+                dateHeureFin: dateHeureFin || null
             };
+
+            // Validation des dates
+            if (dateHeureDebut && dateHeureFin) {
+                const debut = new Date(dateHeureDebut);
+                const fin = new Date(dateHeureFin);
+                
+                if (fin < debut) {
+                    throw {
+                        details: [{
+                            path: ['dateHeureFin'],
+                            message: "La date de fin doit être postérieure à la date de début"
+                        }]
+                    };
+                }
+            }
 
             const resultat = await serviceTache.creerTache(donneesTache);
 
@@ -97,6 +117,8 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                 setAudioBlob(null);
                 setAudioUrl(null);
                 setAudioConfirme(false);
+                setDateHeureDebut("");  // Réinitialiser la date/heure de début
+                setDateHeureFin("");    // Réinitialiser la date/heure de fin
                 document.getElementById("photo-input").value = "";
                 if (onTacheCreee) onTacheCreee(resultat.data);
             } else {
@@ -244,6 +266,46 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
                         </div>
                     )}
                 </div>
+
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="dateHeureDebut" className="block text-gray-700 mb-3 font-semibold text-lg">
+                            Date et heure de début
+                        </label>
+                        <input
+                            type="datetime-local"
+                            id="dateHeureDebut"
+                            value={dateHeureDebut}
+                            onChange={(e) => setDateHeureDebut(e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-black text-lg transition-all duration-200"
+                        />
+                        {erreurs.dateHeureDebut && (
+                            <div className="flex items-center gap-2 text-red-500 text-sm mt-2">
+                                <FiAlertCircle size={16} /> {erreurs.dateHeureDebut}
+                            </div>
+                        )}
+                    </div>
+
+                    <div>
+                        <label htmlFor="dateHeureFin" className="block text-gray-700 mb-3 font-semibold text-lg">
+                            Date et heure de fin
+                        </label>
+                        <input
+                            type="datetime-local"
+                            id="dateHeureFin"
+                            value={dateHeureFin}
+                            onChange={(e) => setDateHeureFin(e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-black text-lg transition-all duration-200"
+                        />
+                        {erreurs.dateHeureFin && (
+                            <div className="flex items-center gap-2 text-red-500 text-sm mt-2">
+                                <FiAlertCircle size={16} /> {erreurs.dateHeureFin}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
 
                 {erreurGenerale && (
                     <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">

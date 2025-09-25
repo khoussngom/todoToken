@@ -150,6 +150,9 @@ export class TodoService {
             if (data.description !== undefined) updateData.description = data.description;
             if (data.completed !== undefined) updateData.completed = data.completed;
             if (data.photoUrl !== undefined) updateData.photoUrl = data.photoUrl;
+            if (data.audioUrl !== undefined) updateData.audioUrl = data.audioUrl;
+            if (data.dateHeureDebut !== undefined) updateData.dateHeureDebut = data.dateHeureDebut ? new Date(data.dateHeureDebut as string) : null;
+            if (data.dateHeureFin !== undefined) updateData.dateHeureFin = data.dateHeureFin ? new Date(data.dateHeureFin as string) : null;
 
             const updatedTodo = await this.todoRepository.update(id, updateData);
 

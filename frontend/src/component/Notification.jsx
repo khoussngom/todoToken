@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bell, Clock, AlertCircle, CalendarCheck } from "lucide-react";
 import serviceHistorique from "../services/serviceHistorique";
+import authService from "../services/authService";
 
 function Notification() {
     const [notifications, setNotifications] = useState([]);
@@ -13,49 +14,61 @@ function Notification() {
         try {
             setLoading(true);
             const reponse = await serviceHistorique.obtenirLogsRecents(LIMIT_NOTIFICATIONS);
+            console.log("Réponse complète:", reponse);
             
-            if (reponse && Array.isArray(reponse.data)) {
-                const logsImportants = reponse.data.filter(log => 
+            if (reponse?.success) {
+                const logs = reponse.data || [];
+                
+                // Filtrer et transformer les logs pour avoir le bon format
+                const logsImportants = logs.filter(log => 
                     log.action === 'TODO_COMPLETE' || 
                     log.action === 'TODO_INCOMPLETE' ||
+                    log.action === 'TODO_UPDATE' ||
                     log.action === 'TASK_DUE'
-                );
+                ).map(log => ({
+                    ...log,
+                    // S'assurer que nous avons toujours un titre
+                    title: log.todo?.title || log.todoTitle || log.title || "Tâche sans titre"
+                }));
+
                 setNotifications(logsImportants);
             }
         } catch (error) {
-            console.error("Erreur notifications:", error);
-            setNotifications([]);
+            console.error("Erreur de notification:", error);
+            if (error.response?.status === 401) {
+                window.location.href = '/login';
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    // Gestionnaire de clic en dehors
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setShowDetails(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+    const checkAuthAndFetch = async () => {
+        const token = await authService.getValidToken();
+        if (token) {
+            fetchNotifications();
+            const interval = setInterval(fetchNotifications, 30000);
+            return () => clearInterval(interval);
+        } else {
+            window.location.href = '/login';
+        }
+    };
+    
+    checkAuthAndFetch();
     }, []);
 
-    // Chargement initial et rafraîchissement périodique
+  // Ajoutez un useEffect pour surveiller les changements de notifications
     useEffect(() => {
-        const user = localStorage.getItem("user");
-        if (!user) return;
+    console.log("État notifications:", notifications);
+  }, [notifications]);
 
-        fetchNotifications();
-        const interval = setInterval(fetchNotifications, 30000);
-        window.refreshNotifications = fetchNotifications;
-        
-        return () => {
-            clearInterval(interval);
-            delete window.refreshNotifications;
-        };
-    }, []);
+    // Ajoutez ce useEffect pour voir la structure des notifications
+    useEffect(() => {
+        if (notifications.length > 0) {
+            console.log("Structure d'une notification:", notifications[0]);
+        }
+    }, [notifications]);
 
     const formatDate = (date) => {
         const maintenant = new Date();
@@ -99,7 +112,7 @@ function Notification() {
                 )}
             </div>
 
-            {showDetails && (
+      {showDetails && notifications && (
                 <div className="absolute right-0 mt-3 w-96 bg-white rounded-xl shadow-lg border z-50">
                     <div className="p-4 border-b">
                         <h3 className="font-semibold text-gray-800">
@@ -112,11 +125,17 @@ function Notification() {
                     ) : notifications.length > 0 ? (
                         <div className="max-h-96 overflow-y-auto">
                             {notifications.map((log) => (
-                                <div key={log.id} className="flex items-start p-4 hover:bg-gray-50 border-b">
+                                <div
+                                    key={log.id}
+                                    className="flex items-start p-4 hover:bg-gray-50 border-b"
+                                >
                                     {getNotificationIcon(log.action)}
                                     <div className="ml-3 flex-1">
                                         <p className="text-sm font-medium text-gray-900">
                                             {serviceHistorique.formaterAction(log.action)}
+                                        </p>
+                                        <p className="text-sm font-medium text-blue-600">
+                                            {log.title} {/* Utiliser directement log.title car nous l'avons déjà traité dans fetchNotifications */}
                                         </p>
                                         <p className="text-sm text-gray-600">
                                             {log.description || 'Pas de description'}

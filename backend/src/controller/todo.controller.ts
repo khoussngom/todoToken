@@ -15,10 +15,12 @@ export class TodoController {
         createTodo = async (req: Request, res: Response): Promise<void> => {
                 try {
                         const validatedData = createTodoSchema.parse(req.body);
-
-                        const { userId, ...rest } = validatedData;
+            
+                        const { userId, dateHeureDebut, dateHeureFin, ...rest } = validatedData;
                         const todoCreateInput = {
                                 ...rest,
+                                dateHeureDebut: dateHeureDebut ? new Date(dateHeureDebut) : null,
+                                dateHeureFin: dateHeureFin ? new Date(dateHeureFin) : null,
                                 user: {
                                         connect: { id: userId }
                                 }

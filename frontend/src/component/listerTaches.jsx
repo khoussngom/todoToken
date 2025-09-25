@@ -34,7 +34,6 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
         hasPrevPage: false
     });
 
-    // Récupérer l'utilisateur connecté au chargement du composant
     useEffect(() => {
         const utilisateur = localStorage.getItem("user");
         if (utilisateur) {
@@ -214,10 +213,10 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
     return (
         <div className="max-w-7xl mx-auto p-6">
             <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-800">Mes Tâches</h2>
+                <h2 className="text-3xl font-bold text-white">Mes Tâches</h2>
                 <button
                     onClick={onCreerTache}
-                    className="flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
+                    className="flex items-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
                 >
                     <FiPlus size={24} />
                     Créer une tâche
@@ -488,7 +487,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                                                 onClick={() => allerALaPage(i)}
                                                 className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-200 ${
                                                     i === currentPage
-                                                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
+                                                        ? "bg-blue-600 text-white shadow-md"
                                                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                                                 }`}
                                             >
@@ -506,7 +505,7 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
                                 disabled={!pagination.hasNextPage}
                                 className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
                                     pagination.hasNextPage
-                                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-md hover:shadow-lg"
+                                        ? "bg-blue-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-md hover:shadow-lg"
                                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                 }`}
                                 title="Page suivante"

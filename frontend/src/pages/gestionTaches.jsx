@@ -86,15 +86,15 @@ function Taches() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50">
-            <header className="bg-white shadow-lg border-b-2 border-cyan-200">
+        <div className="min-h-screen bg-grey-900">
+            <header className="bg-grey-900 shadow-lg border-b-2 border-cyan-200">
                 <div className="max-w-6xl mx-auto px-6 py-6">
                     <div className="flex justify-between items-center">
                         <div>
                             <h1 className="text-4xl font-bold bg-blue-600 bg-clip-text text-transparent">
                                 Marakhib ToDo
                             </h1>
-                            <p className="text-gray-600 mt-2 text-lg">
+                            <p className="text-white mt-2 text-lg" >
                                 Bienvenue, {utilisateur.name || utilisateur.email}
                             </p>
                         </div>

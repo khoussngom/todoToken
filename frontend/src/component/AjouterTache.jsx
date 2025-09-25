@@ -126,7 +126,7 @@ function AjouterTache({ onTacheCreee, onAnnuler }) {
     return (
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-2xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
-                <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-3 rounded-full">
+                <div className="bg-blue-600 p-3 rounded-full">
                     <FiPlus size={24} className="text-white" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-800">Ajouter une tâche</h2>

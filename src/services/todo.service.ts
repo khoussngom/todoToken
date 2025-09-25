@@ -1,18 +1,33 @@
 import { TodoRepository } from '../repository/todo.repository.js';
 import { ErrorMessages } from '../enums/errorEnum.js';
 import { SuccessMessages } from '../enums/successEnums.js';
+import { NotificationService } from './notification.service';
+import { SchedulerService } from './scheduler.service';
 import type { Todo, ApiResponse } from '../interface/todo.interface';
 import { Prisma } from '../generated/prisma/index.js';
 
 export class TodoService {
     private todoRepository: TodoRepository;
+    private notificationService: NotificationService;
+    private schedulerService: SchedulerService;
 
     constructor() {
         this.todoRepository = new TodoRepository();
+        this.notificationService = new NotificationService();
+        this.schedulerService = new SchedulerService();
     }
 
     async createTodo(data: Prisma.TodoCreateInput): Promise<ApiResponse<Todo>> {
         try {
+        // Convertir les dates string en objets Date si nécessaire
+        const processedData = { ...data };
+        if (typeof data.startTime === 'string') {
+            processedData.startTime = new Date(data.startTime);
+        }
+        if (typeof data.endTime === 'string') {
+            processedData.endTime = new Date(data.endTime);
+        }
+
         const todo = await this.todoRepository.create(data);
 
         return {
@@ -104,13 +119,32 @@ export class TodoService {
             };
         }
 
+        // Convertir les dates string en objets Date si nécessaire
+        const processedData = { ...data };
+        if (typeof data.startTime === 'string') {
+            processedData.startTime = new Date(data.startTime);
+        }
+        if (typeof data.endTime === 'string') {
+            processedData.endTime = new Date(data.endTime);
+        }
+
         const updateData: any = {};
-        if (data.title !== undefined) updateData.title = data.title;
-        if (data.description !== undefined) updateData.description = data.description;
-        if (data.completed !== undefined) updateData.completed = data.completed;
+        if (processedData.title !== undefined) updateData.title = processedData.title;
+        if (processedData.description !== undefined) updateData.description = processedData.description;
+        if (processedData.completed !== undefined) updateData.completed = processedData.completed;
+        if (processedData.startTime !== undefined) updateData.startTime = processedData.startTime;
+        if (processedData.endTime !== undefined) updateData.endTime = processedData.endTime;
 
         const updatedTodo = await this.todoRepository.update(id, updateData);
 
+        // Si la tâche est marquée comme terminée, envoyer une notification
+        if (processedData.completed === true && !existingTodo.completed) {
+            await this.notificationService.notifyTodoCompleted(
+                updatedTodo.id,
+                updatedTodo.userId,
+                updatedTodo.title
+            );
+        }
         return {
             success: true,
             data: updatedTodo,

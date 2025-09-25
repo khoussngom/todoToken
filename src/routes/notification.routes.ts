@@ -8,7 +8,9 @@ const { authenticate } = new AuthMiddleware(new AuthService());
 const router = Router();
 const notificationController = new NotificationController();
 
+// Routes pour les notifications
 router.get('/notifications', authenticate, notificationController.getUserNotifications);
+router.get('/notifications/unread-count', authenticate, notificationController.getUnreadCount);
 router.put('/notifications/:id/read', authenticate, notificationController.markAsRead);
 router.put('/notifications/read-all', authenticate, notificationController.markAllAsRead);
 

@@ -84,7 +84,7 @@ export class NotificationService {
     async notifyTodoCompleted(todoId: number, userId: number, todoTitle: string): Promise<void> {
         await this.createNotification({
             userId,
-            title: 'Tâche terminée !',
+            title: 'Tâche terminée ! 🎉',
             message: `Félicitations ! Vous avez terminé la tâche "${todoTitle}"`,
             type: NotificationType.TODO_COMPLETED,
             todoId
@@ -94,7 +94,7 @@ export class NotificationService {
     async notifyTodoDeadline(todoId: number, userId: number, todoTitle: string): Promise<void> {
         await this.createNotification({
             userId,
-            title: 'Échéance approche',
+            title: 'Échéance approche ⏰',
             message: `La tâche "${todoTitle}" arrive à échéance bientôt`,
             type: NotificationType.TODO_DEADLINE,
             todoId
@@ -104,7 +104,7 @@ export class NotificationService {
     async notifyTodoOverdue(todoId: number, userId: number, todoTitle: string): Promise<void> {
         await this.createNotification({
             userId,
-            title: 'Tâche en retard',
+            title: 'Tâche en retard ⚠️',
             message: `La tâche "${todoTitle}" est en retard`,
             type: NotificationType.TODO_OVERDUE,
             todoId

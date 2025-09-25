@@ -90,4 +90,28 @@ export class NotificationController {
             });
         }
     };
+
+    getUnreadCount = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const authorise = req.headers.authorization;
+            const token = authorise?.split(' ')[1];
+            const verifier = jwt.verify(token!, 'Marakhib') as JWTPayload;
+            const userId = verifier.userId;
+
+            const count = await this.notificationService.getUserNotifications(userId, true);
+            const unreadCount = Array.isArray(count.data) ? count.data.length : 0;
+
+            res.status(200).json({
+                success: true,
+                data: { count: unreadCount },
+                message: 'Nombre de notifications non lues récupéré'
+            });
+        } catch (error) {
+            console.error('Erreur dans getUnreadCount:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Erreur interne du serveur'
+            });
+        }
+    };
 }

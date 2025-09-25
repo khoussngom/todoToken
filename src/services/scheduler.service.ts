@@ -23,7 +23,7 @@ export class SchedulerService {
             this.checkOverdueTodos();
         });
 
-        console.log('Schedulers initialisés avec succès');
+        console.log('📅 Schedulers de notifications initialisés avec succès');
     }
 
     private async checkDeadlines(): Promise<void> {
@@ -50,7 +50,7 @@ export class SchedulerService {
                 );
             }
 
-            console.log(`Vérification des échéances: ${todos.length} notifications envoyées`);
+            console.log(`⏰ Vérification des échéances: ${todos.length} notifications envoyées`);
         } catch (error) {
             console.error('Erreur lors de la vérification des échéances:', error);
         }
@@ -78,7 +78,7 @@ export class SchedulerService {
                 );
             }
 
-            console.log(`Vérification des retards: ${overdueTodos.length} notifications envoyées`);
+            console.log(`⚠️ Vérification des retards: ${overdueTodos.length} notifications envoyées`);
         } catch (error) {
             console.error('Erreur lors de la vérification des retards:', error);
         }

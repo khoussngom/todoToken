@@ -119,6 +119,10 @@ function ListerTaches({ onSelectionnerTache, onCreerTache }) {
             const resultat = await serviceTache.modifierTache(tacheId, { completed: termine });
             if (resultat.success) {
                 chargerTaches();
+                // Rafraîchir les notifications
+                if (window.refreshNotifications) {
+                    window.refreshNotifications();
+                }
             } else {
                 setErreur(resultat.error || "Erreur lors de la mise à jour");
             }

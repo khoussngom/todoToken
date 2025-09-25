@@ -14,10 +14,10 @@ class ServiceHistorique {
 
     obtenirHeaders() {
         const token = this.obtenirToken();
-        return {
+            return {
             'Content-Type': 'application/json',
             ...(token && { 'Authorization': `Bearer ${token}` })
-        };
+            };
     }
 
     async obtenirTousLesLogs(filtres = {}, pagination = {}) {
@@ -141,12 +141,18 @@ class ServiceHistorique {
         try {
             const dateFrom = new Date();
             dateFrom.setDate(dateFrom.getDate() - 1);
-            const filtres = {
-                dateFrom: dateFrom.toISOString()
-            };
-            const pagination = { limit };
-            return await this.obtenirTousLesLogs(filtres, pagination);
+            const params = new URLSearchParams();
+            params.append('limit', limit.toString());
+            params.append('dateFrom', dateFrom.toISOString());
+            
+            const reponse = await axios.get(
+                `${API_URL}/activity-logs?${params.toString()}`,
+                { headers: this.obtenirHeaders() }
+            );
+            
+            return reponse.data;
         } catch (error) {
+            console.error("Erreur lors de la récupération des logs:", error);
             throw error.response ? error.response.data : new Error("Erreur réseau");
         }
     }

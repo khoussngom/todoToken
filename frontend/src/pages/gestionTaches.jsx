@@ -155,16 +155,16 @@ function Taches() {
 
             <main className="max-w-6xl mx-auto px-6 py-8">
                 {vueActuelle === "liste" && (
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
                         <div className="lg:col-span-3">
                             <ListerTaches
                                 onSelectionnerTache={gererSelectionTache}
                                 onCreerTache={gererCreationTache}
                             />
                         </div>
-                        <div className="lg:col-span-1">
+                        {/* <div className="lg:col-span-1">
                             <ActivitesRecentes limit={8} />
-                        </div>
+                        </div> */}
                     </div>
                 )}
 

@@ -101,7 +101,7 @@ export class TodoService {
         }
     }
 
-    async updateTodo(id: number,idUser: number, data: Prisma.TodoUpdateInput): Promise<ApiResponse<Todo>> {
+    async updateTodo(id: number, idUser: number, data: Prisma.TodoUpdateInput): Promise<ApiResponse<Todo>> {
         try {
 
         const existingTodo = await this.todoRepository.findById(id);
@@ -159,7 +159,7 @@ export class TodoService {
         }
     }
 
-    async deleteTodo(id: number,idUser: number): Promise<ApiResponse<Todo>> {
+    async deleteTodo(id: number, idUser: number): Promise<ApiResponse<Todo>> {
         try {
 
         const existingTodo = await this.todoRepository.findById(id);
